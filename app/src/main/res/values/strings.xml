@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">SirPompodor</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="stop">stop</string>
+    <string name="reset_timer">reset</string>
+    <string name="work_time">Work time:</string>
+    <string name="Srest_time">Short rest time:</string>
+    <string name="Lrest_time">Long rest time:</string>
+    <string name="cycles_count">Work cycles count:</string>
+    <string name="autoplay_next">AutoPlay next timer</string>
+</resources>
