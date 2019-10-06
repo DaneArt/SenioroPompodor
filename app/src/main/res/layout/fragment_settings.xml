@@ -41,6 +41,7 @@
                 app:srcCompat="@drawable/ic_skip_next" />
 
         <androidx.appcompat.widget.AppCompatSeekBar
+                android:id="@+id/seek_workTime"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="16dp"
@@ -58,6 +59,7 @@
                 app:srcCompat="@drawable/ic_skip_next" />
 
         <androidx.appcompat.widget.AppCompatSeekBar
+                android:id="@+id/seek_srestTime"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="16dp"
@@ -74,6 +76,7 @@
                 app:srcCompat="@drawable/ic_skip_next" />
 
         <androidx.appcompat.widget.AppCompatSeekBar
+                android:id="@+id/seek_lrestTime"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="16dp"
@@ -90,6 +93,7 @@
                 app:srcCompat="@drawable/ic_skip_next" />
 
         <androidx.appcompat.widget.AppCompatSeekBar
+                android:id="@+id/seek_cyclesCount"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="16dp"
@@ -103,6 +107,7 @@
                 android:orientation="horizontal">
 
             <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chkbx_autostart"
                     style="@style/TextViewStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

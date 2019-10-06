@@ -14,11 +14,13 @@
                 android:id="@+id/action_timerFragment_to_settingsFragment"
                 app:destination="@id/settingsFragment"
                 app:enterAnim="@anim/in_anim"
+                app:exitAnim="@anim/exit_anim"
                 app:popExitAnim="@anim/pop_anim" />
         <action
                 android:id="@+id/action_timerFragment_to_aboutFragment"
                 app:destination="@id/aboutFragment"
                 app:enterAnim="@anim/in_anim"
+                app:exitAnim="@anim/exit_anim"
                 app:popExitAnim="@anim/pop_anim" />
     </fragment>
     <fragment

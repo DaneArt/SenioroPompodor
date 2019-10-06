@@ -17,7 +17,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:backgroundTint="#383838"
-            app:fabAlignmentMode="end">
+            app:fabAlignmentMode="center">
 
         <LinearLayout
                 android:layout_width="match_parent"
@@ -33,6 +33,12 @@
                     android:layout_weight="1" />
 
             <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+
+                    android:layout_weight="1" />
+
+            <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/btn_about"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -41,11 +47,7 @@
                     android:onClick="onOpenAboutFragment"
                     android:layout_weight="1" />
 
-            <androidx.appcompat.widget.AppCompatImageView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
 
-                    android:layout_weight="1" />
 
         </LinearLayout>
 

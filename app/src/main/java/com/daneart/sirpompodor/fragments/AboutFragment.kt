@@ -16,18 +16,6 @@ import com.daneart.sirpompodor.R
 
 class AboutFragment : Fragment() {
 
-    companion object {
-
-        @JvmStatic
-        fun newInstance() =
-            AboutFragment()
-    }
-
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -37,10 +25,6 @@ class AboutFragment : Fragment() {
             Navigation.findNavController(view).popBackStack()
         }
         return view
-    }
-
-    interface OnFragmentInteractionListener {
-        fun onFragmentInteraction(uri: Uri)
     }
 
 
