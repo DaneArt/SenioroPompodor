@@ -1,9 +1,11 @@
 package com.daneart.sirpompodor.fragments
 
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.preference.PreferenceManager
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -13,10 +15,12 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.lifecycle.ViewModelProviders
+import androidx.work.WorkManager
 import com.daneart.sirpompodor.R
 import com.daneart.sirpompodor.helpers.ProcessState
 import com.daneart.sirpompodor.helpers.TimerState
-import com.daneart.sirpompodor.models.TimerViewModel
+import com.daneart.sirpompodor.models.Timer
+import com.daneart.sirpompodor.utils.NotificationUtil
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.android.synthetic.main.content_timer.*
 import kotlinx.android.synthetic.main.fragment_timer.*
@@ -24,7 +28,9 @@ import kotlinx.android.synthetic.main.fragment_timer.*
 
 class TimerFragment : Fragment() {
 
-    private lateinit var timerViewModel: TimerViewModel
+    private val TAG = TimerFragment::class.java.simpleName
+
+    private lateinit var timerObject: Timer
 
     private lateinit var timer: CountDownTimer
 
@@ -35,8 +41,8 @@ class TimerFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        timerViewModel = ViewModelProviders.of(this).get(TimerViewModel::class.java)
-        timerViewModel.prefereces = PreferenceManager.getDefaultSharedPreferences(context)
+        timerObject = Timer
+        timerObject.prefereces = PreferenceManager.getDefaultSharedPreferences(context)
     }
 
     override fun onCreateView(
@@ -51,13 +57,13 @@ class TimerFragment : Fragment() {
 
         view.findViewById<FloatingActionButton>(R.id.fab_controls).setOnClickListener {
 
-            if (timerViewModel.timerState == TimerState.Running) {
+            if (timerObject.timerState == TimerState.Running) {
                 timer.cancel()
-                timerViewModel.timerState = TimerState.Paused
+                timerObject.timerState = TimerState.Paused
                 updateButtons()
             } else {
                 startTimer()
-                timerViewModel.timerState = TimerState.Running
+                timerObject.timerState = TimerState.Running
                 updateButtons()
             }
 
@@ -65,48 +71,61 @@ class TimerFragment : Fragment() {
 
         view.findViewById<Button>(R.id.btn_reset_timer).setOnClickListener {
             timer.cancel()
-            timerViewModel.timerState = TimerState.Stopped
+            timerObject.timerState = TimerState.Stopped
             initTimer()
         }
 
         view.findViewById<AppCompatImageView>(R.id.btn_skip_timer).setOnClickListener {
-            timer.cancel()
+            if(timerObject.timerState == TimerState.Running)timer.cancel()
             onTimerFinished()
         }
-
-
 
         return view
     }
 
     override fun onResume() {
         super.onResume()
-
+        Log.e(TAG, "Timer fragment onResume()")
         initTimer()
+
+        NotificationUtil.hideTimerNotification(context!!)
     }
 
-    fun initTimer() {
-        timerViewModel.secondsRemaining = timerViewModel.currentTimerLength!! * 60L
+    override fun onPause() {
+        super.onPause()
 
-        timerProgressBar.max = (timerViewModel.currentTimerLength!! * 60L).toInt()
+        if (timerObject.timerState == TimerState.Running) timer.cancel()
+    }
+
+    private fun initTimer() {
+
+        if (timerObject.timerState == TimerState.Stopped)
+            timerObject.secondsRemaining = timerObject.currentTimerLength * 60L
+
+        timerProgressBar.max = (timerObject.currentTimerLength * 60L).toInt()
+
+        if(timerObject.secondsRemaining <= 0)
+            onTimerFinished()
+        else if(timerObject.timerState == TimerState.Running)
+            startTimer()
 
         updateButtons()
         updateUI()
 
     }
 
-    fun startTimer() {
+    private fun startTimer() {
 
-        timerViewModel.timerState = TimerState.Running
+        timerObject.timerState = TimerState.Running
         updateButtons()
 
-        timer = object : CountDownTimer(timerViewModel.secondsRemaining * 1000, 1000) {
+        timer = object : CountDownTimer(timerObject.secondsRemaining * 1000, 1000) {
             override fun onFinish() {
                 onTimerFinished()
             }
 
             override fun onTick(millisUntilFinished: Long) {
-                timerViewModel.secondsRemaining = millisUntilFinished / 1000
+                timerObject.secondsRemaining = millisUntilFinished / 1000
                 updateCountdownUI()
             }
 
@@ -118,27 +137,27 @@ class TimerFragment : Fragment() {
 
     private fun onTimerFinished() {
 
-        timerViewModel.timerState = TimerState.Stopped
+        timerObject.timerState = TimerState.Stopped
 
-        if(timerViewModel.processState != ProcessState.Work)
-            timerViewModel.currentCycle++
+        if (timerObject.processState != ProcessState.Work)
+            timerObject.currentCycle++
 
-        timerViewModel.updateProcessState()
+        timerObject.updateProcessState()
 
-        timerProgressBar.max = (timerViewModel.currentTimerLength!! * 60L).toInt()
+        timerProgressBar.max = (timerObject.currentTimerLength * 60L).toInt()
         timerProgressBar.progress = timerProgressBar.max
 
-        timerViewModel.secondsRemaining = timerViewModel.currentTimerLength!! * 60L
+        timerObject.secondsRemaining = timerObject.currentTimerLength * 60L
 
         updateButtons()
         updateUI()
 
-        if(timerViewModel.isAutostart!!)
+        if (timerObject.isAutostart)
             startTimer()
     }
 
     private fun updateUI() {
-        if (timerViewModel.processState == ProcessState.Work) {
+        if (timerObject.processState == ProcessState.Work) {
             timerProgressBar.progressDrawable.setColorFilter(
                 Color.RED, android.graphics.PorterDuff.Mode.SRC_IN
             )
@@ -149,47 +168,37 @@ class TimerFragment : Fragment() {
         }
 
         txt_cycleCount.text =
-            "${(timerViewModel.currentCycle % timerViewModel.cyclesCount!!) + 1}/${timerViewModel.cyclesCount!!}"
+            "${(timerObject.currentCycle % timerObject.cyclesCount!!) + 1}/${timerObject.cyclesCount!!}"
 
         updateCountdownUI()
     }
 
     private fun updateButtons() {
-        when (timerViewModel.timerState) {
+        when (timerObject.timerState) {
             TimerState.Running -> {
                 fab_controls.setImageDrawable(context?.resources?.getDrawable(R.drawable.ic_pause))
-                btn_skip_timer.isEnabled = true
                 btn_reset_timer.isEnabled = true
             }
             TimerState.Paused -> {
                 fab_controls.setImageDrawable(context?.resources?.getDrawable(R.drawable.ic_start))
-                btn_skip_timer.isEnabled = true
                 btn_reset_timer.isEnabled = true
             }
             TimerState.Stopped -> {
                 fab_controls.setImageDrawable(context?.resources?.getDrawable(R.drawable.ic_start))
-                btn_skip_timer.isEnabled = false
                 btn_reset_timer.isEnabled = false
             }
 
         }
     }
 
-    override fun onDetach() {
-        super.onDetach()
-        try{
-            timer.cancel()
-        }catch (t:Throwable){}
-    }
-
     private fun updateCountdownUI() {
-        val minutestUntilFinished = timerViewModel.secondsRemaining / 60
+        val minutestUntilFinished = timerObject.secondsRemaining / 60
         val secondsInMinuteUntilFinished =
-            timerViewModel.secondsRemaining - minutestUntilFinished * 60
+            timerObject.secondsRemaining - minutestUntilFinished * 60
         val secondsStr = secondsInMinuteUntilFinished.toString()
         timerTextView.text =
             "$minutestUntilFinished:${if (secondsStr.length == 2) secondsStr else "0" + secondsStr}"
-        timerProgressBar.progress = timerViewModel.secondsRemaining.toInt()
+        timerProgressBar.progress = timerObject.secondsRemaining.toInt()
 
 
     }

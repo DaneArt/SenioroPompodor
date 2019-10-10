@@ -52,11 +52,11 @@
             style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@null"
             android:fontFamily="@font/baloo_da"
             android:text="@string/reset_timer"
             android:textColor="#4e4e4e"
             android:textSize="24sp"
-            android:background="@null"
             app:layout_constraintBottom_toTopOf="@+id/btn_skip_timer"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -66,12 +66,11 @@
             android:id="@+id/btn_skip_timer"
             android:layout_width="48dp"
             android:layout_height="48dp"
+            android:layout_marginEnd="32dp"
+            android:layout_marginBottom="64dp"
             android:background="?android:attr/selectableItemBackground"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginEnd="32dp"
-            android:layout_marginBottom="64dp"
-
             app:srcCompat="@drawable/ic_skip_next" />
 
     <TextView

@@ -4,6 +4,7 @@ package com.daneart.sirpompodor.fragments
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.preference.PreferenceManager
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -13,9 +14,11 @@ import androidx.appcompat.widget.AppCompatImageView
 import androidx.navigation.Navigation
 
 import com.daneart.sirpompodor.R
-import com.daneart.sirpompodor.models.TimerViewModel
+import com.daneart.sirpompodor.models.Timer
 
 class SettingsFragment : Fragment() {
+
+    private val TAG = SettingsFragment::class.java.simpleName
 
     private lateinit var preferences: SharedPreferences
 
@@ -40,25 +43,25 @@ class SettingsFragment : Fragment() {
         workTimeTxt.text =
             getString(
                 R.string.work_time, "${
-                preferences.getLong(TimerViewModel.WORK_TIME_ID, 25)
+                preferences.getLong(Timer.WORK_TIME_ID, 25)
                 }:00"
             )
         srestTimeTxt.text =
             getString(
                 R.string.Srest_time, "${
-                preferences.getLong(TimerViewModel.SREST_TIME_ID, 5)
+                preferences.getLong(Timer.SREST_TIME_ID, 5)
                 }:00"
             )
         lrestTimeTxt.text =
             getString(
                 R.string.Lrest_time, "${
-                preferences.getLong(TimerViewModel.LREST_TIME_ID, 15)
+                preferences.getLong(Timer.LREST_TIME_ID, 15)
                 }:00"
             )
         cyclesCountTxt.text =
             getString(
                 R.string.cycles_count,
-                preferences.getInt(TimerViewModel.CYCLES_COUNT_ID, 4)
+                preferences.getInt(Timer.CYCLES_COUNT_ID, 4)
             )
 
         val workSeekBar = view.findViewById<SeekBar>(R.id.seek_workTime)
@@ -66,18 +69,19 @@ class SettingsFragment : Fragment() {
         val lrestSeekBar = view.findViewById<SeekBar>(R.id.seek_lrestTime)
         val cyclesSeekBar = view.findViewById<SeekBar>(R.id.seek_cyclesCount)
 
-        workSeekBar.progress = preferences.getLong(TimerViewModel.WORK_TIME_ID, 25).toInt()
-        srestSeekBar.progress = preferences.getLong(TimerViewModel.SREST_TIME_ID, 5).toInt()
-        lrestSeekBar.progress = preferences.getLong(TimerViewModel.LREST_TIME_ID, 15).toInt()
-        cyclesSeekBar.progress = preferences.getInt(TimerViewModel.CYCLES_COUNT_ID, 4)
+        workSeekBar.progress = preferences.getLong(Timer.WORK_TIME_ID, 25).toInt()
+        srestSeekBar.progress = preferences.getLong(Timer.SREST_TIME_ID, 5).toInt()
+        lrestSeekBar.progress = preferences.getLong(Timer.LREST_TIME_ID, 15).toInt()
+        cyclesSeekBar.progress = preferences.getInt(Timer.CYCLES_COUNT_ID, 4)
 
         val autostartCheckBox:CheckBox = view.findViewById(R.id.chkbx_autostart)
-        autostartCheckBox.isChecked = preferences.getBoolean(TimerViewModel.TIMER_AUTOSTART_ID, false)
+        autostartCheckBox.isChecked = preferences.getBoolean(Timer.TIMER_AUTOSTART_ID, false)
 
         autostartCheckBox.setOnCheckedChangeListener { compoundButton, b ->
             if(compoundButton.isPressed){
                 val editor = preferences.edit()
-                editor.putBoolean(TimerViewModel.TIMER_AUTOSTART_ID,compoundButton.isChecked)
+                editor.putBoolean(Timer.TIMER_AUTOSTART_ID,compoundButton.isChecked)
+                Log.e(TAG,"AutoStart changed: ${Timer.isAutostart}")
                 editor.apply()
             }
         }
@@ -95,7 +99,7 @@ class SettingsFragment : Fragment() {
                 override fun onStopTrackingTouch(seekBar: SeekBar?) {
                     val editor = preferences.edit()
                     editor.putLong(
-                        TimerViewModel.WORK_TIME_ID,
+                        Timer.WORK_TIME_ID,
                         seekBar?.progress!!.toLong()
                     )
                     editor.apply()
@@ -115,7 +119,7 @@ class SettingsFragment : Fragment() {
                 override fun onStopTrackingTouch(seekBar: SeekBar?) {
                     val editor = PreferenceManager.getDefaultSharedPreferences(activity).edit()
                     editor.putLong(
-                        TimerViewModel.SREST_TIME_ID,
+                        Timer.SREST_TIME_ID,
                         seekBar?.progress!!.toLong()
                     )
                     editor.apply()
@@ -135,7 +139,7 @@ class SettingsFragment : Fragment() {
                 override fun onStopTrackingTouch(seekBar: SeekBar?) {
                     val editor = PreferenceManager.getDefaultSharedPreferences(activity).edit()
                     editor.putLong(
-                        TimerViewModel.LREST_TIME_ID,
+                        Timer.LREST_TIME_ID,
                         seekBar?.progress!!.toLong()
                     )
                     editor.apply()
@@ -155,7 +159,7 @@ class SettingsFragment : Fragment() {
                 override fun onStopTrackingTouch(seekBar: SeekBar?) {
                     val editor = PreferenceManager.getDefaultSharedPreferences(activity).edit()
                     editor.putInt(
-                        TimerViewModel.CYCLES_COUNT_ID,
+                        Timer.CYCLES_COUNT_ID,
                         seekBar?.progress!!
                     )
                     editor.apply()
