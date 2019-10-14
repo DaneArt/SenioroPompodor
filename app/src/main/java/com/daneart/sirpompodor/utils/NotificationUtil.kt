@@ -7,8 +7,6 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
-import android.media.RingtoneManager
-import android.net.Uri
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.daneart.sirpompodor.R
@@ -33,12 +31,10 @@ class NotificationUtil {
             )
 
             val builder =
-                getBasicNotificationBuidler(
+                getBasicNotificationBuilder(
                     context,
-                    CHANNEL_ID_TIMER,
-                    true
+                    CHANNEL_ID_TIMER
                 )
-
 
             builder.setContentTitle(processType)
                 .setContentText("Running")
@@ -68,10 +64,9 @@ class NotificationUtil {
             )
 
             val builder =
-                getBasicNotificationBuidler(
+                getBasicNotificationBuilder(
                     context,
-                    CHANNEL_ID_TIMER,
-                    true
+                    CHANNEL_ID_TIMER
                 )
             builder.setContentTitle(processType)
                 .setContentText("Paused")
@@ -96,10 +91,9 @@ class NotificationUtil {
             )
 
             val builder =
-                getBasicNotificationBuidler(
+                getBasicNotificationBuilder(
                     context,
-                    CHANNEL_ID_TIMER,
-                    true
+                    CHANNEL_ID_TIMER
                 )
 
 
@@ -118,20 +112,15 @@ class NotificationUtil {
             nManager.notify(TIMER_ID, builder.build())
         }
 
-        private fun getBasicNotificationBuidler(
+        private fun getBasicNotificationBuilder(
             context: Context,
-            channelId: String,
-            playSound: Boolean
+            channelId: String
         )
                 : NotificationCompat.Builder {
-            val notificationSound: Uri =
-                RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
-            val builder = NotificationCompat.Builder(context, channelId)
+            return NotificationCompat.Builder(context, channelId)
                 .setSmallIcon(R.drawable.ic_launcher)
                 .setAutoCancel(true)
                 .setDefaults(0)
-            if (playSound) builder.setSound(notificationSound)
-            return builder
         }
 
         @TargetApi(26)

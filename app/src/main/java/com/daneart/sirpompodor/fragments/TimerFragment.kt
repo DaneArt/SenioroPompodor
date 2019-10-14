@@ -2,6 +2,8 @@ package com.daneart.sirpompodor.fragments
 
 import android.content.Context
 import android.graphics.Color
+import android.media.AudioManager
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.preference.PreferenceManager
@@ -26,13 +28,16 @@ import kotlinx.android.synthetic.main.content_timer.*
 import kotlinx.android.synthetic.main.fragment_timer.*
 
 
-class TimerFragment : Fragment() {
+class TimerFragment : Fragment(),
+    MediaPlayer.OnPreparedListener,
+    MediaPlayer.OnCompletionListener {
 
     private val TAG = TimerFragment::class.java.simpleName
 
     private lateinit var timerObject: Timer
 
     private lateinit var timer: CountDownTimer
+    private var mediaPlayer: MediaPlayer? = null
 
     private lateinit var timerProgressBar: ProgressBar
     private lateinit var timerTextView: TextView
@@ -76,7 +81,7 @@ class TimerFragment : Fragment() {
         }
 
         view.findViewById<AppCompatImageView>(R.id.btn_skip_timer).setOnClickListener {
-            if(timerObject.timerState == TimerState.Running)timer.cancel()
+            if (timerObject.timerState == TimerState.Running) timer.cancel()
             onTimerFinished()
         }
 
@@ -93,8 +98,11 @@ class TimerFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
-
-        if (timerObject.timerState == TimerState.Running) timer.cancel()
+        Log.i(TAG,"Timer paused")
+        if (timerObject.timerState == TimerState.Running) {
+            timer.cancel()
+            Log.i(TAG,"Timer cancelled")
+        }
     }
 
     private fun initTimer() {
@@ -104,9 +112,9 @@ class TimerFragment : Fragment() {
 
         timerProgressBar.max = (timerObject.currentTimerLength * 60L).toInt()
 
-        if(timerObject.secondsRemaining <= 0)
+        if (timerObject.secondsRemaining <= 0)
             onTimerFinished()
-        else if(timerObject.timerState == TimerState.Running)
+        else if (timerObject.timerState == TimerState.Running)
             startTimer()
 
         updateButtons()
@@ -122,13 +130,13 @@ class TimerFragment : Fragment() {
         timer = object : CountDownTimer(timerObject.secondsRemaining * 1000, 1000) {
             override fun onFinish() {
                 onTimerFinished()
+                playNotificationSound()
             }
 
             override fun onTick(millisUntilFinished: Long) {
                 timerObject.secondsRemaining = millisUntilFinished / 1000
                 updateCountdownUI()
             }
-
         }
 
         timer.start()
@@ -168,7 +176,7 @@ class TimerFragment : Fragment() {
         }
 
         txt_cycleCount.text =
-            "${(timerObject.currentCycle % timerObject.cyclesCount!!) + 1}/${timerObject.cyclesCount!!}"
+            "${(timerObject.currentCycle % timerObject.cyclesCount) + 1}/${timerObject.cyclesCount}"
 
         updateCountdownUI()
     }
@@ -191,6 +199,21 @@ class TimerFragment : Fragment() {
         }
     }
 
+    private fun playNotificationSound(){
+        val fileDescriptor =
+            activity!!.assets.openFd("notification_sound.mp3")
+
+        mediaPlayer = MediaPlayer()
+        mediaPlayer!!.setDataSource(
+            fileDescriptor.fileDescriptor,
+            fileDescriptor.startOffset,
+            fileDescriptor.length
+        )
+        mediaPlayer!!.setAudioStreamType(AudioManager.STREAM_ALARM)
+        mediaPlayer!!.setOnPreparedListener(this)
+        mediaPlayer!!.prepareAsync()
+    }
+
     private fun updateCountdownUI() {
         val minutestUntilFinished = timerObject.secondsRemaining / 60
         val secondsInMinuteUntilFinished =
@@ -199,8 +222,17 @@ class TimerFragment : Fragment() {
         timerTextView.text =
             "$minutestUntilFinished:${if (secondsStr.length == 2) secondsStr else "0" + secondsStr}"
         timerProgressBar.progress = timerObject.secondsRemaining.toInt()
+    }
 
+    override fun onPrepared(player: MediaPlayer?) {
+        player?.start()
+    }
 
+    override fun onCompletion(player: MediaPlayer?) {
+        mediaPlayer?.let { p ->
+            p.release()
+            mediaPlayer = null
+        }
     }
 
 }

@@ -26,11 +26,11 @@ class AboutFragment : Fragment() {
             Navigation.findNavController(view).popBackStack()
         }
 
-        btn_twitter.setOnClickListener {
+        view.findViewById<AppCompatImageView>(R.id.btn_twitter).setOnClickListener {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://twitter.com/DaneArt1"))
             startActivity(intent)
         }
-        btn_github.setOnClickListener {
+        view.findViewById<AppCompatImageView>(R.id.btn_github).setOnClickListener {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/DaneArt"))
             startActivity(intent)
         }

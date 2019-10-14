@@ -76,9 +76,9 @@ class PompoActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
         Log.e(TAG, "Main Activity destroyed")
         WorkManager.getInstance().cancelAllWork()
         NotificationUtil.hideTimerNotification(this)
+        super.onDestroy()
     }
 }
